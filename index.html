@@ -24,10 +24,11 @@
   <body>
     <div id="ar-container">
       <a-scene
-        mindar-image="imageTargetSrc: ./assets/marker3.mind; autoStart: true; filterMinCF:0.0001; filterBeta:0.001;"
+        mindar-image="imageTargetSrc: https://hiukim.github.io/mind-ar-js-doc/assets/card-example/card.mind; autoStart: true; filterMinCF: 0.0001; filterBeta: 0.001;"
         vr-mode-ui="enabled: false"
         device-orientation-permission-ui="enabled: true"
         embedded
+        renderer="precision: mediump"
       >
         <a-assets>
           <video
@@ -74,7 +75,7 @@
       // fallback: require user gesture on mobile
       document.body.addEventListener("click", () => {
         if (video.paused) {
-          video.play().catch(e => console.error("Play failed:", e));
+          video.play().catch((e) => console.error("Play failed:", e));
         }
       });
 
@@ -86,7 +87,7 @@
           property: "scale",
           to: "1.5 0.84 1",
           dur: 300,
-          easing: "easeOutElastic"
+          easing: "easeOutElastic",
         });
 
         if (!initialized) {
@@ -102,7 +103,7 @@
           property: "scale",
           to: "0 0 0",
           dur: 300,
-          easing: "easeInOutQuad"
+          easing: "easeInOutQuad",
         });
 
         setTimeout(() => {
@@ -113,4 +114,3 @@
     </script>
   </body>
 </html>
-
