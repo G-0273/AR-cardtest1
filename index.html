@@ -16,7 +16,6 @@
         height: 100vh;
       }
 
-      /* Prevent interaction via pointer */
       a-scene canvas {
         pointer-events: none !important;
       }
@@ -25,29 +24,25 @@
   <body>
     <div id="ar-container">
       <a-scene
-        mindar-image="imageTargetSrc: ./assets/marker.mind; autoStart: true;"
+        mindar-image="imageTargetSrc: ./assets/marker.mind; autoStart: true; filterMinCF:0.0001; filterBeta:0.001;"
         vr-mode-ui="enabled: false"
         device-orientation-permission-ui="enabled: true"
         embedded
       >
-        <!-- Video asset -->
         <a-assets>
           <video
             id="ar-video"
+            src="./assets/video.mp4"
             playsinline
             muted
             loop
             preload="auto"
             crossorigin="anonymous"
-          >
-            <source src="./assets/video.mp4" type="video/mp4" />
-          </video>
+          ></video>
         </a-assets>
 
-        <!-- Camera with raycaster disabled -->
         <a-camera position="0 0 0" raycaster="enabled: false"></a-camera>
 
-        <!-- Image target with non-interactive video plane -->
         <a-entity mindar-image-target="targetIndex: 0">
           <a-plane
             id="video-plane"
@@ -55,9 +50,7 @@
             rotation="0 0 0"
             scale="0 0 0"
             visible="false"
-            raycaster-listen="false"
             material="shader: flat"
-            geometry="primitive: plane"
           ></a-plane>
         </a-entity>
       </a-scene>
@@ -68,32 +61,48 @@
       const plane = document.querySelector("#video-plane");
       const target = document.querySelector("[mindar-image-target]");
 
-      target.addEventListener("targetFound", async () => {
-        plane.setAttribute("visible", true);
-        plane.setAttribute("animation", {
-          property: "scale",
-          to: "1.5 0.84 1",
-          dur: 300,
-          easing: "easeOutElastic",
-        });
+      let initialized = false;
 
-        if (!plane.getAttribute("src")) {
-          plane.setAttribute("src", "#ar-video");
-        }
-
+      const playVideo = async () => {
         try {
           await video.play();
         } catch (err) {
-          console.warn("Video play error:", err);
+          console.warn("Autoplay blocked, waiting for user gesture...");
+        }
+      };
+
+      // fallback: require user gesture on mobile
+      document.body.addEventListener("click", () => {
+        if (video.paused) {
+          video.play().catch(e => console.error("Play failed:", e));
+        }
+      });
+
+      target.addEventListener("targetFound", () => {
+        plane.setAttribute("visible", true);
+        plane.setAttribute("src", "#ar-video");
+
+        plane.setAttribute("animation__scalein", {
+          property: "scale",
+          to: "1.5 0.84 1",
+          dur: 300,
+          easing: "easeOutElastic"
+        });
+
+        if (!initialized) {
+          initialized = true;
+          playVideo();
+        } else {
+          video.play();
         }
       });
 
       target.addEventListener("targetLost", () => {
-        plane.setAttribute("animation", {
+        plane.setAttribute("animation__scaleout", {
           property: "scale",
           to: "0 0 0",
           dur: 300,
-          easing: "easeInOutQuad",
+          easing: "easeInOutQuad"
         });
 
         setTimeout(() => {
@@ -104,3 +113,4 @@
     </script>
   </body>
 </html>
+
