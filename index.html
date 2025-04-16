@@ -2,6 +2,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>AR Business Card</title>
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.0/dist/mindar-image-aframe.prod.js"></script>
@@ -11,7 +12,6 @@
         overflow: hidden;
         font-family: sans-serif;
       }
-
       #ar-container {
         width: 100vw;
         height: 100vh;
@@ -19,7 +19,6 @@
         opacity: 0;
         transition: opacity 0.5s ease;
       }
-
       #start-screen {
         position: absolute;
         top: 0;
@@ -34,7 +33,6 @@
         z-index: 10;
         flex-direction: column;
       }
-
       #start-button {
         padding: 1em 2em;
         font-size: 1.2em;
@@ -44,7 +42,6 @@
         border-radius: 8px;
         cursor: pointer;
       }
-
       a-scene canvas {
         pointer-events: none !important;
       }
@@ -57,15 +54,14 @@
       <button id="start-button">Start AR</button>
     </div>
 
-    <!-- AR Scene Container -->
     <div id="ar-container">
       <a-scene
-        mindar-image="imageTargetSrc: ./assets/marker2.mind; autoStart: true;"
+        mindar-image="imageTargetSrc: ./assets/marker2.mind; autoStart: false;"
         vr-mode-ui="enabled: false"
         device-orientation-permission-ui="enabled: true"
         embedded
       >
-        <!-- Assets -->
+        <!-- Video asset -->
         <a-assets>
           <video
             id="ar-video"
@@ -79,10 +75,10 @@
           </video>
         </a-assets>
 
-        <!-- Camera -->
+        <!-- Camera with raycaster disabled -->
         <a-camera position="0 0 0" raycaster="enabled: false"></a-camera>
 
-        <!-- Tracked Target -->
+        <!-- Image target with non-interactive video plane -->
         <a-entity mindar-image-target="targetIndex: 0">
           <a-plane
             id="video-plane"
@@ -99,19 +95,20 @@
     </div>
 
     <script>
+      const startButton = document.querySelector("#start-button");
+      const arContainer = document.querySelector("#ar-container");
+      const scene = document.querySelector("a-scene");
       const video = document.querySelector("#ar-video");
       const plane = document.querySelector("#video-plane");
       const target = document.querySelector("[mindar-image-target]");
-      const startScreen = document.getElementById("start-screen");
-      const arContainer = document.getElementById("ar-container");
-      const startButton = document.getElementById("start-button");
 
+      // Start button event
       startButton.addEventListener("click", () => {
-        startScreen.style.display = "none";
         arContainer.style.visibility = "visible";
         arContainer.style.opacity = "1";
+        document.querySelector("#start-screen").style.display = "none";
         setTimeout(() => {
-          window.dispatchEvent(new Event("resize"));
+          scene.components["mindar-image"].start();
         }, 100);
       });
 
@@ -151,5 +148,6 @@
     </script>
   </body>
 </html>
+
 
 
